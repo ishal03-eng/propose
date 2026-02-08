@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Our Constellation of Memories</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --star-glow: #ffd700;
+            --star-active: #fff4a3;
+            --envelope-seal: #8b4513;
+            --paper-bg: #fdfbf3;
+            --night-sky: #0a0e27;
+            --constellation-line: rgba(255, 215, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: var(--night-sky);
+            color: white;
+            overflow: hidden;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="rgba(255,215,0,0.5)" stroke="gold" stroke-width="1"/></svg>') 10 10, auto;
+        }
+
+        .stars-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .star-bg {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: shoot 3s linear infinite;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-300px, 300px);
+                opacity: 0;
+            }
+        }
+
+        .constellation-canvas {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg.constellation-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .constellation-star {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .constellation-star:hover {
+            transform: scale(1.3);
+        }
+
+        .star-point {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .star-point::before,
+        .star-point::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--star-glow);
+            border-radius: 50%;
+        }
+
+        .star-point::before {
+            width: 12px;
+            height: 12px;
+            box-shadow: 0 0 20px 5px var(--star-glow);
+        }
+
+        .star-point::after {
+            width: 6px;
+            height: 6px;
+            background: white;
+        }
+
+        .constellation-star.opened .star-point::before {
+            background: var(--star-active);
+            box-shadow: 0 0 30px 10px var(--star-active);
+            animation: glow 1s ease-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes glow {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .envelope-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .envelope-modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .envelope-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease;
+        }
+
+        .envelope.opening {
+            animation: openEnvelope 1s ease forwards;
+        }
+
+        @keyframes openEnvelope {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(-180deg); }
+        }
+
+        .envelope-front,
+        .envelope-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e8dcc4 0%, #d4c5a9 100%);
+            border: 2px solid #c4b59a;
+            backface-visibility: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .envelope-back {
+            transform: rotateX(180deg);
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--envelope-seal);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            color: #d4a574;
+            font-weight: 600;
+            animation: sealPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes sealPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .envelope.opening .wax-seal {
+            animation: breakSeal 0.5s ease forwards;
+        }
+
+        @keyframes breakSeal {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+
+        .letter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(0);
+            width: 90%;
+            max-width: 500px;
+            height: 80%;
+            max-height: 600px;
+            background: var(--paper-bg);
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            pointer-events: none;
+            overflow-y: auto;
+            border: 1px solid #e6ddc4;
+        }
+
+        .letter.visible {
+            animation: revealLetter 0.8s ease forwards 0.5s;
+            pointer-events: auto;
+        }
+
+        @keyframes revealLetter {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) translateY(50px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) translateY(0); 
+            }
+        }
+
+        .letter-content {
+            color: #2c2416;
+            line-height: 1.8;
+            font-size: 18px;
+        }
+
+        .letter-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #8b4513;
+            text-align: center;
+        }
+
+        .letter-text {
+            margin-bottom: 20px;
+        }
+
+        .close-letter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            background: var(--envelope-seal);
+            border: none;
+            border-radius: 50%;
+            color: var(--paper-bg);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .close-letter:hover {
+            transform: scale(1.1);
+        }
+
+        .title-text {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-align: center;
+            z-index: 10;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: fadeInTitle 2s ease;
+        }
+
+        .subtitle-text {
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Crimson Text', serif;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-align: center;
+            z-index: 10;
+            color: rgba(255, 215, 0, 0.8);
+            animation: fadeInTitle 2s ease 0.3s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes fadeInTitle {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .progress-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            z-index: 10;
+        }
+
+        .final-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.98);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 1s ease;
+        }
+
+        .final-message.active {
+            display: flex;
+        }
+
+        .final-content {
+            text-align: center;
+            max-width: 800px;
+            padding: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .final-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 72px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, #ffd700, #fff4a3, #ffd700);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .final-text {
+            font-size: 24px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--star-active);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleFloat 2s ease-out forwards;
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Scrollbar styling for letter */
+        .letter::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .letter::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .letter::-webkit-scrollbar-thumb {
+            background: var(--envelope-seal);
+            border-radius: 4px;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                cursor: default;
+            }
+
+            .title-text {
+                top: 30px;
+                font-size: 32px;
+                padding: 0 20px;
+                letter-spacing: 2px;
+            }
+
+            .subtitle-text {
+                top: 70px;
+                font-size: 18px;
+                letter-spacing: 1.5px;
+            }
+
+            .progress-indicator {
+                bottom: 20px;
+                font-size: 14px;
+                padding: 0 20px;
+                text-align: center;
+            }
+
+            /* Larger touch targets for stars */
+            .constellation-star {
+                width: 40px;
+                height: 40px;
+                touch-action: manipulation;
+            }
+
+            .star-point::before {
+                width: 16px;
+                height: 16px;
+                box-shadow: 0 0 25px 8px var(--star-glow);
+            }
+
+            .star-point::after {
+                width: 8px;
+                height: 8px;
+            }
+
+            /* Optimized envelope for mobile */
+            .envelope-container {
+                width: 90vw;
+                max-width: 350px;
+                height: 250px;
+            }
+
+            .wax-seal {
+                width: 70px;
+                height: 70px;
+                font-size: 32px;
+            }
+
+            /* Letter optimized for mobile */
+            .letter {
+                width: 95%;
+                height: 85%;
+                max-height: 70vh;
+                padding: 25px 20px;
+                border-radius: 5px;
+            }
+
+            .letter-title {
+                font-size: 26px;
+                margin-bottom: 15px;
+            }
+
+            .letter-text {
+                font-size: 16px;
+                line-height: 1.7;
+            }
+
+            .close-letter {
+                top: 10px;
+                right: 10px;
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+
+            /* Final message mobile optimization */
+            .final-content {
+                padding: 40px 25px;
+                margin: 20px;
+                border-radius: 15px;
+            }
+
+            .final-title {
+                font-size: 48px;
+                margin-bottom: 30px;
+            }
+
+            .final-text {
+                font-size: 18px;
+                line-height: 1.7;
+            }
+
+            /* Adjust constellation positions for mobile portrait */
+            .constellation-star[data-star-id="1"] {
+                left: 20% !important;
+                top: 30% !important;
+            }
+
+            .constellation-star[data-star-id="2"] {
+                left: 50% !important;
+                top: 20% !important;
+            }
+
+            .constellation-star[data-star-id="3"] {
+                left: 80% !important;
+                top: 30% !important;
+            }
+
+            .constellation-star[data-star-id="4"] {
+                left: 35% !important;
+                top: 55% !important;
+            }
+
+            .constellation-star[data-star-id="5"] {
+                left: 20% !important;
+                top: 75% !important;
+            }
+
+            .constellation-star[data-star-id="6"] {
+                left: 65% !important;
+                top: 70% !important;
+            }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 400px) {
+            .title-text {
+                font-size: 28px;
+                top: 25px;
+            }
+
+            .subtitle-text {
+                font-size: 16px;
+                top: 60px;
+            }
+
+            .letter {
+                padding: 20px 15px;
+            }
+
+            .letter-title {
+                font-size: 22px;
+            }
+
+            .letter-text {
+                font-size: 15px;
+            }
+
+            .final-content {
+                padding: 30px 20px;
+            }
+
+            .final-title {
+                font-size: 36px;
+            }
+
+            .final-text {
+                font-size: 16px;
+            }
+        }
+
+        /* Landscape mobile orientation */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .title-text {
+                font-size: 28px;
+                top: 15px;
+            }
+
+            .subtitle-text {
+                top: 45px;
+                font-size: 16px;
+            }
+
+            .progress-indicator {
+                bottom: 15px;
+                font-size: 13px;
+            }
+
+            .letter {
+                max-height: 75vh;
+                padding: 20px;
+            }
+
+            .letter-title {
+                font-size: 24px;
+                margin-bottom: 12px;
+            }
+
+            .letter-text {
+                font-size: 15px;
+                line-height: 1.6;
+            }
+
+            .final-content {
+                padding: 25px 30px;
+                max-width: 600px;
+            }
+
+            .final-title {
+                font-size: 42px;
+                margin-bottom: 25px;
+            }
+
+            .final-text {
+                font-size: 17px;
+            }
+        }
+
+        /* Tablet devices */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .title-text {
+                font-size: 42px;
+            }
+
+            .subtitle-text {
+                font-size: 19px;
+                top: 95px;
+            }
+
+            .envelope-container {
+                width: 450px;
+                height: 320px;
+            }
+
+            .letter {
+                padding: 35px;
+            }
+
+            .letter-title {
+                font-size: 30px;
+            }
+
+            .letter-text {
+                font-size: 17px;
+            }
+        }
+
+        /* Prevent text selection on mobile for better UX */
+        @media (max-width: 768px) {
+            .constellation-star,
+            .wax-seal,
+            .close-letter {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container" id="starsContainer"></div>
+
+    <div class="title-text">Our Constellation of Memories</div>
+
+    
+    <div class="progress-indicator">
+        <span id="progressText">Click the stars to reveal our memories • <span id="openedCount">0</span>/6 opened</span>
+    </div>
+
+    <div class="constellation-canvas" id="constellationCanvas">
+        <svg class="constellation-lines" id="constellationLines"></svg>
+    </div>
+
+    <div class="envelope-modal" id="envelopeModal">
+        <div class="envelope-container">
+            <div class="envelope" id="envelope">
+                <div class="envelope-front">
+                    <div class="wax-seal" id="waxSeal">♥</div>
+                </div>
+                <div class="envelope-back"></div>
+            </div>
+            <div class="letter" id="letter">
+                <button class="close-letter" id="closeLetter">✕</button>
+                <div class="letter-content" id="letterContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="final-message" id="finalMessage">
+        <div class="final-content">
+            <div class="final-title">Will you be mine forever?</div>
+            <div class="final-text">
+                My dearest Palku,
+                <br><br>
+                Every star in our constellation represents a moment that brought us closer,
+                a memory that made us stronger, a reason why I love you more each day.
+                <br><br>
+                Distance may keep us apart physically, but our hearts beat as one constellation.
+                From those magical cab rides to our late-night video calls, from your courage facing challenges
+                to the way you make me laugh with our silly inside jokes - every moment with you has been a gift.
+                <br><br>
+                You are my brightest star, my guiding light, my forever.
+                <br><br>
+                Palku, will you make me, Vishal, the happiest person in the universe and be mine forever?
+                <br><br>
+                Will you be mine for the rest of our lives?
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration for constellation stars and their letters
+        const starData = [
+            {
+                id: 1,
+                position: { x: 30, y: 40 },
+                title: "Open When You Miss Me",
+                content: `My dearest love,
+                
+I know the distance between us feels endless sometimes. When you miss me, close your eyes and remember those magical cab rides we had together.
+
+Remember the naughty fun, the stolen kisses, the way we couldn't keep our hands off each other? Those moments in the backseat, laughing and being completely ourselves, feeling like the world outside didn't exist.
+
+Every time I'm in a cab now, I think of you. I think of your smile, your touch, the way you made every ordinary moment extraordinary.
+
+I miss you too, more than words can say. I miss our adventures, our spontaneous moments, the way being with you feels like coming home.
+
+This distance is temporary, but those memories? They're forever etched in my heart.
+
+Until our next cab ride together,
+Your Vishal ❤️`
+            },
+            {
+                id: 2,
+                position: { x: 50, y: 25 },
+                title: "Open When You Need Courage",
+                content: `My brave Palku,
+                
+You are stronger than you know, braver than you believe, and more capable than you imagine. 
+
+Remember when you had to face those teachers all by yourself? You were nervous, but you walked in there and handled it with such grace and strength. I wasn't there with you, but I was so incredibly proud watching you be so brave.
+
+That's who you are - someone who faces challenges head-on, even when your heart is racing, even when you're alone.
+
+Whatever you're facing right now, you've already proven you can handle tough situations on your own. But here's the beautiful part - you don't have to anymore. Even when we're apart, you're never truly alone in any fight.
+
+You've got this warrior spirit inside you, and I'm right here, believing in you with every fiber of my being.
+
+Take a deep breath. You've conquered mountains before. This is just another peak to climb, and I know you'll reach the summit.
+
+With all my faith in you,
+Your Vishal ❤️`
+            },
+            {
+                id: 3,
+                position: { x: 70, y: 35 },
+                title: "Open When You're Happy",
+                content: `My sunshine,
+                
+Your happiness is my happiness, multiplied by infinity. And nothing makes me happier than seeing you sing, dance, and just be your beautiful, carefree self.
+
+I love watching you lose yourself in a song, the way you dance like nobody's watching, the way your eyes light up when we talk about everything and nothing.
+
+Those moments when you're singing along to your favorite songs, or when we're just talking and you're genuinely happy - those are my favorite moments in the entire world.
+
+Your joy is contagious, your energy is magnetic, and your ability to find happiness in the simplest things inspires me every single day.
+
+So dance a little extra today. Sing off-key. Call me and talk my ear off. Share every bit of your happiness with me because there's nothing I'd rather experience than your joy.
+
+Thank you for letting me be part of your happiness. It's the greatest gift.
+
+Smiling with you always,
+Your Vishal ❤️`
+            },
+            {
+                id: 4,
+                position: { x: 45, y: 60 },
+                title: "Open When It's Late at Night",
+                content: `My night owl,
+                
+I know you're reading this in the quiet hours when the world is asleep. I wish I could be there with you, just like our late-night video calls that stretch into the early morning.
+
+Remember our virtual coffee dates? Sitting miles apart but feeling so close, sipping our drinks and talking about everything under the stars? Those nights are some of my most cherished memories.
+
+Those late-night video calls where we can't hang up, where we talk until our eyes are heavy but our hearts are full - those are the moments when I feel closest to you.
+
+Your sleepy voice, your messy hair, your genuine smile in the soft glow of your screen - that's when I see the real you, and I fall in love all over again.
+
+The stars you see right now? I'm looking at them too, thinking of you, wishing I could make you a real coffee and sit beside you.
+
+Get some rest soon, my love. Dream of our next coffee date, this time in person.
+
+Sweet dreams, beautiful soul.
+
+Whispering goodnight,
+Your Vishal ❤️`
+            },
+            {
+                id: 5,
+                position: { x: 25, y: 70 },
+                title: "Open When You Need a Laugh",
+                content: `Hey cutie,
+                
+Remember all our silly moments that make us crack up? Let me remind you of some:
+
+• The way I say "doodhu" - and you can't help but smile every time
+• Those moments when you tease me saying "when you want to see my..." and we both burst out laughing
+• All those times when we're just talking and I roast you, and you pretend to be offended but you're actually loving it
+
+Your laugh is my favorite sound in the world. The way we can be completely silly and weird with each other, without any filters or pretense - that's what makes us special.
+
+We have our own language, our own jokes that no one else would understand. And honestly? I wouldn't want it any other way.
+
+Life's too short to be serious all the time. So here's to more "doodhu" moments, more roasting sessions, more inside jokes that make absolutely no sense to anyone but us.
+
+Never stop being your wonderfully weird self. I love every bit of it.
+
+Laughing with you always,
+Your Vishal ❤️`
+            },
+            {
+                id: 6,
+                position: { x: 60, y: 70 },
+                title: "Open When You Need Reminding",
+                content: `My everything,
+                
+Sometimes we need to hear the simple truths:
+
+You are loved. Deeply, truly, unconditionally loved.
+You are enough. More than enough. You are extraordinary.
+You are thought of. Every single day, multiple times a day.
+You are missed. In ways big and small, constantly.
+You are appreciated. For who you are, not what you do.
+You are my person. My best friend, my confidant, my home.
+
+This distance? It's temporary.
+Our love? It's forever.
+My commitment? Unwavering.
+My heart? Completely yours.
+
+Never doubt these truths.
+
+Loving you always,
+Your Vishal ❤️`
+            }
+        ];
+
+        let openedCount = 0;
+        const totalStars = starData.length;
+        let currentStarId = null;
+
+        // Generate background stars
+        function generateBackgroundStars() {
+            const container = document.getElementById('starsContainer');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-bg';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(star);
+            }
+
+            // Add shooting stars
+            for (let i = 0; i < 3; i++) {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'shooting-star';
+                shootingStar.style.left = Math.random() * 100 + '%';
+                shootingStar.style.top = Math.random() * 50 + '%';
+                shootingStar.style.animationDelay = Math.random() * 5 + 's';
+                shootingStar.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(shootingStar);
+            }
+        }
+
+        // Create constellation stars
+        function createConstellation() {
+            const canvas = document.getElementById('constellationCanvas');
+            const svg = document.getElementById('constellationLines');
+            
+            starData.forEach(star => {
+                const starElement = document.createElement('div');
+                starElement.className = 'constellation-star';
+                starElement.dataset.starId = star.id;
+                starElement.style.left = star.position.x + '%';
+                starElement.style.top = star.position.y + '%';
+                
+                const starPoint = document.createElement('div');
+                starPoint.className = 'star-point';
+                starElement.appendChild(starPoint);
+                
+                starElement.addEventListener('click', () => openEnvelope(star));
+                
+                canvas.appendChild(starElement);
+            });
+
+            // Draw constellation lines
+            drawConstellationLines(svg);
+        }
+
+        function drawConstellationLines(svg) {
+            const connections = [
+                [0, 1], [1, 2], [2, 5], [5, 4], [4, 3], [3, 0], [1, 4]
+            ];
+
+            const canvasWidth = window.innerWidth;
+            const canvasHeight = window.innerHeight;
+
+            connections.forEach(([start, end]) => {
+                const startStar = starData[start];
+                const endStar = starData[end];
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', (startStar.position.x / 100) * canvasWidth);
+                line.setAttribute('y1', (startStar.position.y / 100) * canvasHeight);
+                line.setAttribute('x2', (endStar.position.x / 100) * canvasWidth);
+                line.setAttribute('y2', (endStar.position.y / 100) * canvasHeight);
+                line.setAttribute('stroke', 'var(--constellation-line)');
+                line.setAttribute('stroke-width', '2');
+                line.style.opacity = '0';
+                line.style.transition = 'opacity 0.5s ease';
+
+                svg.appendChild(line);
+
+                setTimeout(() => {
+                    line.style.opacity = '1';
+                }, 500 + (start * 200));
+            });
+        }
+
+        function openEnvelope(star) {
+            if (document.querySelector(`[data-star-id="${star.id}"]`).classList.contains('opened')) {
+                return;
+            }
+
+            currentStarId = star.id;
+            const modal = document.getElementById('envelopeModal');
+            const envelope = document.getElementById('envelope');
+            const letter = document.getElementById('letter');
+            const letterContent = document.getElementById('letterContent');
+
+            // Reset envelope state
+            envelope.classList.remove('opening');
+            letter.classList.remove('visible');
+
+            // Set letter content
+            letterContent.innerHTML = `
+                <div class="letter-title">${star.title}</div>
+                <div class="letter-text">${star.content.replace(/\n/g, '<br>')}</div>
+            `;
+
+            // Show modal
+            modal.classList.add('active');
+
+            // Open envelope after a moment
+            setTimeout(() => {
+                envelope.classList.add('opening');
+                createSparkles(modal);
+            }, 300);
+
+            // Show letter
+            setTimeout(() => {
+                letter.classList.add('visible');
+            }, 800);
+        }
+
+        function createSparkles(container) {
+            for (let i = 0; i < 20; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = (Math.random() * 100) + '%';
+                sparkle.style.top = (Math.random() * 100) + '%';
+                sparkle.style.animationDelay = (Math.random() * 0.5) + 's';
+                container.appendChild(sparkle);
+
+                setTimeout(() => sparkle.remove(), 2000);
+            }
+        }
+
+        function closeEnvelope() {
+            const modal = document.getElementById('envelopeModal');
+            const envelope = document.getElementById('envelope');
+            const letter = document.getElementById('letter');
+
+            letter.classList.remove('visible');
+            
+            setTimeout(() => {
+                modal.classList.remove('active');
+                envelope.classList.remove('opening');
+
+                if (currentStarId) {
+                    const starElement = document.querySelector(`[data-star-id="${currentStarId}"]`);
+                    if (!starElement.classList.contains('opened')) {
+                        starElement.classList.add('opened');
+                        openedCount++;
+                        updateProgress();
+
+                        if (openedCount === totalStars) {
+                            setTimeout(showFinalMessage, 1000);
+                        }
+                    }
+                }
+            }, 300);
+        }
+
+        function updateProgress() {
+            document.getElementById('openedCount').textContent = openedCount;
+        }
+
+        function showFinalMessage() {
+            const finalMessage = document.getElementById('finalMessage');
+            finalMessage.classList.add('active');
+            createSparkles(finalMessage);
+            
+            // Continuous sparkles for the final message
+            setInterval(() => {
+                createSparkles(finalMessage);
+            }, 2000);
+        }
+
+        // Event listeners
+        document.getElementById('closeLetter').addEventListener('click', closeEnvelope);
+        
+        document.getElementById('envelopeModal').addEventListener('click', (e) => {
+            if (e.target.id === 'envelopeModal') {
+                closeEnvelope();
+            }
+        });
+
+        // Initialize
+        generateBackgroundStars();
+        createConstellation();
+        updateProgress();
+
+        // Redraw constellation lines on resize for responsive behavior
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const svg = document.getElementById('constellationLines');
+                svg.innerHTML = '';
+                drawConstellationLines(svg);
+            }, 250);
+        });
+
+        // Prevent zoom on double tap for iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (event) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
